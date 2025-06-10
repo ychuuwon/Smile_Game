@@ -10,10 +10,7 @@ const btnJogarNovamente = document.getElementById('joganovamente');
 
 // função que zera os valores das variáveis controladoras
 function reiniciar() {
-  desempenho = 0;
-  tentativas = 0;
-  acertos = 0;
-  jogar = true;
+  tentativas = acertos = desempenho = 0;
   jogarNovamente();
   atualizaPlacar(0, 0);
   btnJogarNovamente.className = 'visivel';
@@ -23,26 +20,24 @@ function reiniciar() {
 // função jogar novamente
 function jogarNovamente() {
   jogar = true;
-  let divis = document.getElementsByTagName("div");
-  for (let i = 0; i < divis.length; i++) {
-    if (divis[i].id >= 0 && divis[i].id <= 5) {
-      divis[i].className = "inicial";
-      const imgs = divis[i].querySelectorAll("img");
-      imgs.forEach(img => img.remove());
+
+  const divs = document.getElementsByTagName("div");
+  for (let i = 0; i < divs.length; i++) {
+    const id = parseInt(divs[i].id);
+    if (id >= 0 && id <= 5) {
+      divs[i].className = "inicial";
+      divs[i].querySelectorAll("img").forEach(img => img.remove());
     }
   }
 
-  let imagem = document.getElementById("imagem");
-  if (imagem) imagem.remove();
+  document.getElementById("imagem")?.remove();
 }
 
 // função que atualiza o placar
 function atualizaPlacar(acertos, tentativas) {
   desempenho = (acertos / tentativas) * 100;
   document.getElementById("resposta").innerHTML =
-    "Placar - Acertos: " + acertos +
-    " Tentativas: " + tentativas +
-    " Desempenho: " + Math.round(desempenho) + "%";
+    `Placar - Acertos: ${acertos} Tentativas: ${tentativas} Desempenho: ${Math.round(desempenho)}%`;
 }
 
 // função executada quando o jogador acertou
@@ -56,38 +51,36 @@ function acertou(obj) {
 
 // função executada quando o jogador clica em uma carta
 function verifica(obj) {
-  if (jogar) {
-    jogar = false;
-    tentativas++;
-
-    if (tentativas === 4) {
-      btnJogarNovamente.className = 'invisivel';
-      btnReiniciar.className = 'visivel';
-    }
-
-    let sorteado = Math.floor(Math.random() * 6); // sorteia de 0 a 5
-
-    if (parseInt(obj.id) === sorteado) {
-      acertou(obj);
-      acertos++;
-    } else {
-      obj.className = "errou";
-
-      // mostra a carinha triste na carta clicada
-      const imgTriste = new Image(100);
-      imgTriste.src = "https://i.pinimg.com/736x/08/c1/70/08c170edd5b0a1cef907863919fa9ad7.jpg";
-      imgTriste.className = "carinha triste";
-      obj.appendChild(imgTriste);
-
-      // mostra onde está a carinha feliz
-      const objSorteado = document.getElementById(sorteado);
-      acertou(objSorteado);
-    }
-
-    atualizaPlacar(acertos, tentativas);
-  } else {
+  if (!jogar) {
     alert('Clique em "Jogar novamente"');
+    return;
   }
+
+  jogar = false;
+  tentativas++;
+
+  if (tentativas === 4) {
+    btnJogarNovamente.className = 'invisivel';
+    btnReiniciar.className = 'visivel';
+  }
+
+  const sorteado = Math.floor(Math.random() * 6);
+
+  if (parseInt(obj.id) === sorteado) {
+    acertou(obj);
+    acertos++;
+  } else {
+    obj.className = "errou";
+
+    const imgTriste = new Image(100);
+    imgTriste.src = "https://i.pinimg.com/736x/08/c1/70/08c170edd5b0a1cef907863919fa9ad7.jpg";
+    imgTriste.className = "carinha triste";
+    obj.appendChild(imgTriste);
+
+    acertou(document.getElementById(sorteado));
+  }
+
+  atualizaPlacar(acertos, tentativas);
 }
 
 // adiciona eventos aos botões
